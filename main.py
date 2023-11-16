@@ -16,7 +16,7 @@ def next_word(progress_file, learned_words_file):
     current_word_index += 1
     if current_word_index < len(words):
         current_word = words[current_word_index]
-        print(f"\nNext word: {current_word}")
+        print(f"\nNew word: {current_word.upper()}")
         print("Definition(s):")
         for meaning in words_data[current_word]['meanings']:
             print(f"- {meaning}")
@@ -27,14 +27,17 @@ def next_word(progress_file, learned_words_file):
 
 def known_word(progress_file, learned_words_file):
     learned_words.append(current_word)
-    next_word(progress_file)
+    next_word(progress_file, learned_words_file)
 
 
 def revise(progress_file, learned_words_file):
     random.shuffle(learned_words)
     if learned_words:
         word_to_revise = learned_words.pop()
-        print(f"Revise: {word_to_revise}")
+        print(f"\nRevise word: {word_to_revise.upper()}")
+        print("Definition(s):")
+        for meaning in words_data[word_to_revise]['meanings']:
+            print(f"- {meaning}")
     else:
         print("You've revised all the learned words!")
     save_progress(progress_file, learned_words_file)
@@ -53,9 +56,14 @@ learned_words_file = os.path.join(progress_folder, 'learned_words.txt')
 with open(words_json, 'r') as file:
     words_data = json.load(file)
 
+# Shuffle the dictionary
+shuffled_keys = list(words_data.keys())
+random.shuffle(shuffled_keys)
+shuffled_words_data = {key: words_data[key] for key in shuffled_keys}
+
 # Sort words based on frequency
 words = sorted(
-    words_data, key=lambda x: words_data[x]['frequency'], reverse=True)
+    shuffled_words_data, key=lambda x: shuffled_words_data[x]['frequency'], reverse=True)
 
 # Initialize variables
 current_word_index = 0
@@ -78,10 +86,11 @@ if os.path.exists(learned_words_file):
         learned_words = file.read().splitlines()
 
 
+print("\nWelcome to the GRE Word Learning Menu")
+
 # GRE Word Learning Interface
 while current_word_index < len(words):
-    print("\nGRE Word Learning Menu")
-    print("1. Show next word")
+    print("\n1. Show next word")
     print("2. Mark as known")
     print("3. Revise learned words")
     print("4. Exit")
@@ -99,4 +108,4 @@ while current_word_index < len(words):
     else:
         print("Invalid choice. Please enter a number between 1-4.")
 
-print("Thank you for using GRE Word Learning program!")
+print("\nThank you for using GRE Word Learning program!\n")
